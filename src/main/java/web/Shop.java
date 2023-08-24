@@ -44,14 +44,20 @@ public class Shop {
         Response response = RestAssured.get(modelsListUrl);
         String htmlBody = response.getBody().asString();
         Document document = Jsoup.parse(htmlBody);
-        Elements elements = document.selectXpath("//div[contains(@class, 'catalog_block')]//a[@class='thumb']");
 
-        modelsUrl = new String[elements.size()];
+        if (document.selectXpath("//div[@class='product-container catalog_detail js-notice-block detail element_1 clearfix']").size() > 0) {
+            modelsUrl = new String[1];
+            modelsUrl[0] = modelsListUrl;
+        } else {
 
-        for (int i = 0; i < elements.size(); i++) {
-            modelsUrl[i] = BASE_URL + elements.get(i).attr("href");
+            Elements elements = document.selectXpath("//div[contains(@class, 'catalog_block')]//a[@class='thumb']");
+
+            modelsUrl = new String[elements.size()];
+
+            for (int i = 0; i < elements.size(); i++) {
+                modelsUrl[i] = BASE_URL + elements.get(i).attr("href");
+            }
         }
-
         return modelsUrl;
     }
 

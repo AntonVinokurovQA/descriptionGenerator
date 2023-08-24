@@ -23,9 +23,9 @@ public class CopyMonkey {
      * @param password user's password.
      */
     public CopyMonkey(String login, String password) {
-        Configuration.timeout = 60000;
+        Configuration.timeout = 90000;
         Configuration.browserSize = "1920x1080";
-        Configuration.headless = true;
+        Configuration.headless = false;
 
         this.login = login;
         this.password = password;
@@ -105,6 +105,8 @@ public class CopyMonkey {
         // Appending the generated description to the result
         description += $x("//h5[@class = 'MuiTypography-root MuiTypography-h5 css-rsuf5k']").getOwnText();
         Selenide.refresh();
+        Selenide.clearBrowserCookies();
+        Selenide.clearBrowserLocalStorage();
 
         return description;
     }
