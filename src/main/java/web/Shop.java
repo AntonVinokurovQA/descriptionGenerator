@@ -15,6 +15,10 @@ public class Shop {
         this.modelsListUrl = modelsListUrl;
     }
 
+    public String getModelsListUrl() {
+        return modelsListUrl;
+    }
+
     public static void main(String[] args) {
         Shop shop = new Shop("https://stores-apple.com/catalog/smartfony/xiaomi/xiaomi_redmi_k/xiaomi_redmi_k70_pro/");
 
