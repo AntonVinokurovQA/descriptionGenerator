@@ -6,15 +6,19 @@ import java.awt.*;
 import java.io.*;
 
 public class FileConversionApp extends JFrame {
-    private JTextField inputFileField;
+    private JTextField inputUrlField;
     private JTextField outputFileField;
     private JTextField additionalInfoField;
     private JButton convertButton;
     private JButton closeButton;
+    private JTextArea progressTextArea;
+    private JTextField copyMonkeyLoginField; // Добавлено поле для ввода логина CopyMonkey
+    private JPasswordField copyMonkeyPasswordField; // Добавлено поле для ввода пароля CopyMonkey
+
 
     public FileConversionApp() {
         setTitle("File Conversion App");
-        setSize(600, 250); // Adjusted height for the new field
+        setSize(950, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -24,47 +28,65 @@ public class FileConversionApp extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(5, 10, 5, 10);
 
-        JLabel inputFileLabel = new JLabel("Select Input File:");
-        inputFileField = new JTextField(20);
-        JButton inputFileBrowseButton = new JButton("Browse...");
-        inputFileBrowseButton.addActionListener(e -> chooseInputFile());
+        JLabel inputFileLabel = new JLabel("Select Input URL:");
+        inputUrlField = new JTextField(20);
 
         JLabel outputFileLabel = new JLabel("Select Output Path:");
         outputFileField = new JTextField(20);
-        JButton outputFileBrowseButton = new JButton("Browse...");
-        outputFileBrowseButton.addActionListener(e -> chooseOutputDirectory());
 
         JLabel additionalInfoLabel = new JLabel("Pictures name prefix:");
         additionalInfoField = new JTextField(20);
+
+        JLabel copyMonkeyLoginLabel = new JLabel("CopyMonkey Login:"); // Метка для поля логина
+        copyMonkeyLoginField = new JTextField(15); // Поле для ввода логина
+
+        JLabel copyMonkeyPasswordLabel = new JLabel("CopyMonkey Password:"); // Метка для поля пароля
+        copyMonkeyPasswordField = new JPasswordField(15); // Поле для ввода пароля
 
         convertButton = new JButton("Convert");
         convertButton.addActionListener(e -> performConversion());
 
         closeButton = new JButton("Close");
-        closeButton.addActionListener(e -> dispose()); // Close the application
+        closeButton.addActionListener(e -> dispose());
+
+        progressTextArea = new JTextArea(20, 65);
+        progressTextArea.setEditable(false);
 
         gbc.gridx = 0;
         gbc.gridy = 0;
         panel.add(inputFileLabel, gbc);
         gbc.gridx = 1;
-        panel.add(inputFileField, gbc);
-        gbc.gridx = 2;
-        panel.add(inputFileBrowseButton, gbc);
+        panel.add(inputUrlField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
         panel.add(outputFileLabel, gbc);
         gbc.gridx = 1;
         panel.add(outputFileField, gbc);
+
         gbc.gridx = 2;
-        panel.add(outputFileBrowseButton, gbc);
+        gbc.gridy = 0;
+        panel.add(copyMonkeyLoginLabel, gbc); // Добавляем метку для логина
+        gbc.gridx = 3;
+        panel.add(copyMonkeyLoginField, gbc); // Добавляем поле для ввода логина
+
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        panel.add(copyMonkeyPasswordLabel, gbc); // Добавляем метку для пароля
+        gbc.gridx = 3;
+        panel.add(copyMonkeyPasswordField, gbc); // Добавляем поле для ввода пароля
 
         gbc.gridx = 0;
         gbc.gridy = 2;
         panel.add(additionalInfoLabel, gbc);
         gbc.gridx = 1;
-        gbc.gridwidth = 2; // Make the additional info field span 2 columns
+        gbc.gridwidth = 2;
         panel.add(additionalInfoField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 4;
+        panel.add(progressTextArea, gbc);
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -75,30 +97,15 @@ public class FileConversionApp extends JFrame {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private void chooseInputFile() {
-        JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            inputFileField.setText(selectedFile.getAbsolutePath());
-        }
-    }
-
-    private void chooseOutputDirectory() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedDirectory = fileChooser.getSelectedFile();
-            outputFileField.setText(selectedDirectory.getAbsolutePath());
-        }
-    }
-
     private void performConversion() {
+        // Переменные для данных из полей формы
         String picName = additionalInfoField.getText();
-        String filename = inputFileField.getText();
+        String filename = inputUrlField.getText();
         String outputPath = outputFileField.getText();
-        System.out.println(picName + "\n" + filename + "\n" + outputPath);
+
+        // Очистка области прогресса перед новым запуском
+        progressTextArea.setText("");
+
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF-8"));
             String line;
@@ -121,8 +128,13 @@ public class FileConversionApp extends JFrame {
             }
             reader.close();
         } catch (IOException e) {
-            System.out.println("An error occurred: " + e.getMessage());
+            progressTextArea.append("An error occurred: " + e.getMessage() + "\n");
         }
+    }
+
+    // Метод для добавления текста в область прогресса
+    private void updateProgress(String text) {
+        progressTextArea.append(text + "\n");
     }
 
     public static void createHtmlFile( String title, String description, String picName, String filePath) {
