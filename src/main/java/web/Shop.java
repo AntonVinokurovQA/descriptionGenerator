@@ -7,34 +7,37 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+/**
+ * Class for interacting with an online shop.
+ */
 public class Shop {
     private final String BASE_URL = "https://stores-apple.com";
     private String modelsListUrl;
+
+    /**
+     * Constructor for the Shop class.
+     *
+     * @param modelsListUrl URL of the models list.
+     */
 
     public Shop(String modelsListUrl) {
         this.modelsListUrl = modelsListUrl;
     }
 
+    /**
+     * Method to get the models list URL.
+     *
+     * @return models list URL.
+     */
     public String getModelsListUrl() {
         return modelsListUrl;
     }
 
-    public static void main(String[] args) {
-        Shop shop = new Shop("https://stores-apple.com/catalog/smartfony/xiaomi/xiaomi_redmi_k/xiaomi_redmi_k70_pro/");
-
-        String[] modelsUrl = shop.getModelsUrl();
-
-        for (String url : modelsUrl) {
-            System.out.println(url);
-        }
-
-        PhoneInfo[] phoneInfo = shop.getListOfDetails(modelsUrl);
-        for (PhoneInfo info : phoneInfo) {
-            System.out.println(info.getTitle());
-            System.out.println(info.getCharacteristics());
-        }
-    }
-
+    /**
+     * Method to retrieve URLs of individual models.
+     *
+     * @return array of model URLs.
+     */
     public String[] getModelsUrl() {
         String[] modelsUrl;
 
@@ -52,6 +55,12 @@ public class Shop {
         return modelsUrl;
     }
 
+    /**
+     * Method to retrieve details of each phone model.
+     *
+     * @param modelsUrl array of model URLs.
+     * @return array of PhoneInfo objects containing model details.
+     */
     public PhoneInfo[] getListOfDetails(String[] modelsUrl) {
         PhoneInfo[] phoneInfo = new PhoneInfo[modelsUrl.length];
 

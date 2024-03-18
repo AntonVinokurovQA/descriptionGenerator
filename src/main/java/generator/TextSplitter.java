@@ -1,6 +1,16 @@
 package generator;
 
+/**
+ * A class representing a tool for splitting text into parts.
+ * This class contains methods for splitting text into a specified number of parts.
+ */
 public class TextSplitter {
+    /**
+     * A method for splitting text into parts.
+     *
+     * @param text The original text to be split.
+     * @return An array of strings containing the parts of the text.
+     */
     public static String[] splitText(String text) {
         String[] parts = new String[4];
         int partLength = (int) Math.ceil(text.length() / 4.0);
@@ -16,6 +26,13 @@ public class TextSplitter {
         return parts;
     }
 
+    /**
+     * A helper method to find the index of splitting the text.
+     *
+     * @param text     The original text.
+     * @param endIndex The presumed index of the end of the text part.
+     * @return The index of splitting the text.
+     */
     private static int findSplitIndex(String text, int endIndex) {
         if (endIndex >= text.length()) {
             return text.length();
@@ -26,16 +43,6 @@ public class TextSplitter {
             return endIndex;
         } else {
             return lastDotIndex + 1;
-        }
-    }
-
-    public static void main(String[] args) {
-        String exampleText = "This is an example text. It needs to be split into four parts while maintaining sentence integrity. The split should happen without breaking sentences. The final part should contain the remaining text.";
-        String[] parts = splitText(exampleText);
-
-        for (String part : parts) {
-            System.out.println(part);
-            System.out.println("-------------------");
         }
     }
 }

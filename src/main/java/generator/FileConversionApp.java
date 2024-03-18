@@ -1,6 +1,10 @@
 package generator;
 
 
+import data.PhoneInfo;
+import web.CopyMonkey;
+import web.Shop;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -17,7 +21,7 @@ public class FileConversionApp extends JFrame {
 
 
     public FileConversionApp() {
-        setTitle("File Conversion App");
+        setTitle("Description generator");
         setSize(950, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -44,13 +48,26 @@ public class FileConversionApp extends JFrame {
         copyMonkeyPasswordField = new JPasswordField(15); // Поле для ввода пароля
 
         convertButton = new JButton("Convert");
-        convertButton.addActionListener(e -> performConversion());
+        convertButton.addActionListener(e -> {
+            try {
+                performConversion();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         closeButton = new JButton("Close");
         closeButton.addActionListener(e -> dispose());
 
         progressTextArea = new JTextArea(20, 65);
         progressTextArea.setEditable(false);
+        progressTextArea.setLineWrap(true);
+        progressTextArea.setMargin(new Insets(2, 2, 2, 2)); // Установка отступов
+
+
+        JScrollPane scrollPane = new JScrollPane(progressTextArea); // Оборачиваем JTextArea в JScrollPane
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); // Включаем вертикальную полосу прокрутки
+
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -86,7 +103,8 @@ public class FileConversionApp extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 4;
-        panel.add(progressTextArea, gbc);
+        gbc.fill = GridBagConstraints.BOTH; // Растягиваем JScrollPane по вертикали и горизонтали
+        panel.add(scrollPane, gbc);
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -97,17 +115,71 @@ public class FileConversionApp extends JFrame {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private void performConversion() {
-        // Переменные для данных из полей формы
+    void performConversion() throws IOException {
         String picName = additionalInfoField.getText();
-        String filename = inputUrlField.getText();
+        String inputUrl = inputUrlField.getText();
         String outputPath = outputFileField.getText();
+        String outputFile = outputFileField.getText()+"\\info.txt";
+        String login = copyMonkeyLoginField.getText();
+        String password = copyMonkeyPasswordField.getText();
 
-        // Очистка области прогресса перед новым запуском
         progressTextArea.setText("");
 
+        updateProgress("Running ...");
+
+        Shop shop = new Shop(inputUrl);
+        CopyMonkey copyMonkey = new CopyMonkey(login, password);
+
+        String[] modelsUrl = shop.getModelsUrl();
+
+        SwingUtilities.invokeLater(() -> updateProgress("Model's URL: " + shop.getModelsListUrl()));
+        SwingUtilities.invokeLater(() -> updateProgress(". . ."));
+
+        SwingUtilities.invokeLater(() -> updateProgress(modelsUrl.length + " phones have been found"));
+        SwingUtilities.invokeLater(() -> updateProgress(". . ."));
+        SwingUtilities.invokeLater(() -> updateProgress("Phone's URLs:"));
+
+        for (String url : modelsUrl) {
+            SwingUtilities.invokeLater(() -> updateProgress(url));
+        }
+
+        SwingUtilities.invokeLater(() -> updateProgress(". . ."));
+
+        PhoneInfo[] phoneInfo = shop.getListOfDetails(modelsUrl);
+        SwingUtilities.invokeLater(() -> updateProgress("Phones info:"));
+        for (PhoneInfo info : phoneInfo) {
+            SwingUtilities.invokeLater(() -> updateProgress("title: " + info.getTitle()));
+            SwingUtilities.invokeLater(() -> updateProgress("characteristics: " + info.getCharacteristics()));
+            SwingUtilities.invokeLater(() -> updateProgress(" "));
+        }
+
+        SwingUtilities.invokeLater(() -> updateProgress(". . ."));
+
+        String[] descriptions = new String[phoneInfo.length];
+        SwingUtilities.invokeLater(() -> updateProgress("Running copymonkey ..."));
+
+        copyMonkey.login();
+        copyMonkey.goToProductDescription();
+
+        for (int i = 0; i < phoneInfo.length; i++) {
+            descriptions[i] = copyMonkey.generateDescription(phoneInfo[i].getTitle(), phoneInfo[i].getCharacteristics());
+
+            int finalI = i;
+            SwingUtilities.invokeLater(() -> updateProgress(phoneInfo[finalI].getTitle()));
+            writeInfoFile(outputFile, phoneInfo[i].getTitle());
+
+            SwingUtilities.invokeLater(() -> updateProgress(descriptions[finalI]));
+            writeInfoFile(outputFile, descriptions[i]);
+
+            SwingUtilities.invokeLater(() -> updateProgress(""));
+            writeInfoFile(outputFile, "");
+        }
+
+        writeInfoFile(outputFile, "final");
+        SwingUtilities.invokeLater(() -> updateProgress("File succesfully created . . ."));
+
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF-8"));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(outputFile), "UTF-8"));
             String line;
             int counter = 1; // Счетчик для имен файлов
 
@@ -127,15 +199,18 @@ public class FileConversionApp extends JFrame {
                 }
             }
             reader.close();
+            SwingUtilities.invokeLater(() -> updateProgress("HTML Files generated in " + outputPath));
         } catch (IOException e) {
-            progressTextArea.append("An error occurred: " + e.getMessage() + "\n");
+            progressTextArea.append("\nAn error occurred: " + e.getMessage() + "\n");
         }
     }
 
-    // Метод для добавления текста в область прогресса
+
     private void updateProgress(String text) {
         progressTextArea.append(text + "\n");
+        progressTextArea.repaint();
     }
+
 
     public static void createHtmlFile( String title, String description, String picName, String filePath) {
         String fileName = title.replaceAll("\\\\", "").replaceAll("/", "") + ".html";
@@ -162,26 +237,25 @@ public class FileConversionApp extends JFrame {
         }
     }
 
-    private static String[] splitDescription(String description) {
-        // Разбиваем описание на 4 части
-        int partLength = (int) Math.ceil(description.length() / 4.0);
-        String[] parts = new String[4];
-
-        for (int i = 0; i < 4; i++) {
-            int start = i * partLength;
-            int end = Math.min((i + 1) * partLength, description.length());
-            parts[i] = description.substring(start, end);
-        }
-
-        return parts;
-    }
-
     public static String extractFirstSentence(String text) {
         int endIndex = text.indexOf('.');
         if (endIndex != -1) {
             return text.substring(0, endIndex + 1).trim();
         } else {
             return text;
+        }
+    }
+
+    private void writeInfoFile(String fileName, String text) throws IOException {
+        File infoFile = new File(fileName);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(infoFile, true))) {
+            if (!infoFile.exists()) {
+                infoFile.createNewFile();
+            }
+            writer.write(text);
+            writer.newLine();
+        } catch (Exception e){
+            SwingUtilities.invokeLater(() -> updateProgress("File error: " + e.getMessage()));
         }
     }
 
