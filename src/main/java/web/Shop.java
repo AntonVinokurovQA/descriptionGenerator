@@ -50,7 +50,7 @@ public class Shop {
             modelsUrl[0] = modelsListUrl;
         } else {
 
-            Elements elements = document.selectXpath("//div[contains(@class, 'catalog_block')]//a[@class='thumb']");
+            Elements elements = document.selectXpath("//div[contains(@class, 'catalog_block')]//a[contains(@class,'thumb')]");
 
             modelsUrl = new String[elements.size()];
 
@@ -76,7 +76,7 @@ public class Shop {
             Document document = Jsoup.parse(htmlBody);
 
             String title = document.selectXpath("//h1[@id='pagetitle']").text();
-            String characteristics = document.selectXpath("//div[@class = 'properties-group js-offers-group-wrap']").text();
+            String characteristics = document.selectXpath("//div[contains(@class, 'left_block')]//div[@class = 'properties list']").text();
 
             phoneInfo[i] = new PhoneInfo(title, characteristics);
         }

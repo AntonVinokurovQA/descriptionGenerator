@@ -43,9 +43,11 @@ public class FileConversionApp extends JFrame {
 
         JLabel copyMonkeyLoginLabel = new JLabel("CopyMonkey Login:"); // Метка для поля логина
         copyMonkeyLoginField = new JTextField(15); // Поле для ввода логина
+        copyMonkeyLoginField.setText("i.antipof@gmail.com");
 
         JLabel copyMonkeyPasswordLabel = new JLabel("CopyMonkey Password:"); // Метка для поля пароля
         copyMonkeyPasswordField = new JPasswordField(15); // Поле для ввода пароля
+        copyMonkeyPasswordField.setText("(r(lSc@iWoCf(b(@Y9TG");
 
         convertButton = new JButton("Convert");
         convertButton.addActionListener(e -> {
@@ -158,8 +160,8 @@ public class FileConversionApp extends JFrame {
         String[] descriptions = new String[phoneInfo.length];
         SwingUtilities.invokeLater(() -> updateProgress("Running copymonkey ..."));
 
-        copyMonkey.login();
-        copyMonkey.goToProductDescription();
+        /*copyMonkey.login();
+        copyMonkey.goToProductDescription();*/
 
         for (int i = 0; i < phoneInfo.length; i++) {
             descriptions[i] = copyMonkey.generateDescription(phoneInfo[i].getTitle(), phoneInfo[i].getCharacteristics());
@@ -214,10 +216,10 @@ public class FileConversionApp extends JFrame {
 
     public static void createHtmlFile( String title, String description, String picName, String filePath) {
         String fileName = title.replaceAll("\\\\", "").replaceAll("/", "") + ".html";
-        String prefix = "Описание смартфона ";
+        String prefix = "Описание чехла ";
 
         try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(filePath+"/"+title.replaceAll("\\\\", "").replaceAll("/", "") + ".html"), "UTF-8"))) {
-            writer.write("<h2 style=\"text-align:center;\">" + prefix  + title.replace("Смартфон ", "") + "</h2>\n");
+            writer.write("<h2 style=\"text-align:center;\">" + prefix  + title.replace("Чехол ", "") + "</h2>\n");
 
             String[] descriptionParts = TextSplitter.splitText(description);
             int picNo = 1;

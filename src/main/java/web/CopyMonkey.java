@@ -79,6 +79,9 @@ public class CopyMonkey {
      * @return generated product description.
      */
     public String generateDescription(String title, String productProperties) {
+        login();
+        goToProductDescription();
+
         String description = "";
 
         if (productProperties.length() > 2000) {
@@ -104,9 +107,11 @@ public class CopyMonkey {
 
         // Appending the generated description to the result
         description += $x("//h5[@class = 'MuiTypography-root MuiTypography-h5 css-rsuf5k']").getOwnText();
-        Selenide.refresh();
+
         Selenide.clearBrowserCookies();
         Selenide.clearBrowserLocalStorage();
+        Selenide.refresh();
+
 
         return description;
     }
