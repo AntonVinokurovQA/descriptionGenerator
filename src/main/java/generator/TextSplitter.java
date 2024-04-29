@@ -38,7 +38,7 @@ public class TextSplitter {
             return text.length();
         }
 
-        int lastDotIndex = text.lastIndexOf('.', endIndex);
+        int lastDotIndex = text.lastIndexOf(". ", endIndex);
         if (lastDotIndex == -1) {
             return endIndex;
         } else {
