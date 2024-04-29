@@ -76,7 +76,7 @@ public class Shop {
             Document document = Jsoup.parse(htmlBody);
 
             String title = document.selectXpath("//h1[@id='pagetitle']").text();
-            String characteristics = document.selectXpath("//div[contains(@class, 'left_block')]//div[@class = 'properties list']").text();
+            String characteristics = document.selectXpath("//div[@class='properties-group js-offers-group-wrap']").text();
 
             phoneInfo[i] = new PhoneInfo(title, characteristics);
         }
