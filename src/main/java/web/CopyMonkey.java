@@ -47,10 +47,10 @@ public class CopyMonkey {
     public boolean login() {
         open(BASE_URL);
 
-        $x("//button[text() = 'Войти' or text() = 'Login'] ").click();
+        $x("//button[text() = 'Войти' or text() = 'Login']").click();
         $x("//input[@name = 'email']").setValue(login);
         $x("//input[@name = 'password']").setValue(password);
-        $x("//button[text() = 'Войти' or text() = 'Login'] ").click();
+        $x("//button[text() = 'Войти' or text() = 'Login']").click();
 
         $x("//h3[text() = 'Product Description' or text() = 'Описание товара']").shouldBe(visible);
 
@@ -79,16 +79,26 @@ public class CopyMonkey {
      * @return generated product description.
      */
     public String generateDescription(String title, String productProperties) {
-        login();
-        goToProductDescription();
-
-        String description = "";
 
         if (productProperties.length() > 2000) {
             String part1 = productProperties.substring(0, 2000);
-            productProperties = productProperties.substring(2000);
-            description = generateDescription(title, part1);
+            String part2 = productProperties.substring(2000);
+            String result = "";
+
+            result = generate(title, part1);
+            result += generate(title, part2);
+
+            return result;
+        } else {
+            return generate(title, productProperties);
         }
+    }
+
+    public String generate(String title, String productProperties){
+        String description = "";
+
+        login();
+        goToProductDescription();
 
         $x("//input[@id = ':r0:']").shouldBe(visible);
         $x("//input[@id = ':r0:']").clear();
@@ -111,7 +121,7 @@ public class CopyMonkey {
         Selenide.clearBrowserCookies();
         Selenide.clearBrowserLocalStorage();
         Selenide.refresh();
-
+        Selenide.sleep(10000);
 
         return description;
     }

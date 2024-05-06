@@ -74,11 +74,15 @@ public class Shop {
             Response response = RestAssured.get(modelsUrl[i]);
             String htmlBody = response.getBody().asString();
             Document document = Jsoup.parse(htmlBody);
+            if( document.selectXpath("//a[@href='#desc'][contains(text(),'Описание')]").isEmpty() ){
+                String title = document.selectXpath("//h1[@id='pagetitle']").text();
+                String characteristics = document.selectXpath("//div[@class='properties-group js-offers-group-wrap']").text();
 
-            String title = document.selectXpath("//h1[@id='pagetitle']").text();
-            String characteristics = document.selectXpath("//div[@class='properties-group js-offers-group-wrap']").text();
-
-            phoneInfo[i] = new PhoneInfo(title, characteristics);
+                phoneInfo[i] = new PhoneInfo(title, characteristics);
+            }
+            else {
+                phoneInfo[i] = new PhoneInfo("", "");
+            }
         }
 
         return phoneInfo;

@@ -164,17 +164,19 @@ public class FileConversionApp extends JFrame {
         copyMonkey.goToProductDescription();*/
 
         for (int i = 0; i < phoneInfo.length; i++) {
-            descriptions[i] = copyMonkey.generateDescription(phoneInfo[i].getTitle(), phoneInfo[i].getCharacteristics());
+            if(!phoneInfo[i].getCharacteristics().equals("")) {
+                descriptions[i] = copyMonkey.generateDescription(phoneInfo[i].getTitle(), phoneInfo[i].getCharacteristics());
 
-            int finalI = i;
-            SwingUtilities.invokeLater(() -> updateProgress(phoneInfo[finalI].getTitle()));
-            writeInfoFile(outputFile, phoneInfo[i].getTitle());
+                int finalI = i;
+                SwingUtilities.invokeLater(() -> updateProgress(phoneInfo[finalI].getTitle()));
+                writeInfoFile(outputFile, phoneInfo[i].getTitle());
 
-            SwingUtilities.invokeLater(() -> updateProgress(descriptions[finalI]));
-            writeInfoFile(outputFile, descriptions[i]);
+                SwingUtilities.invokeLater(() -> updateProgress(descriptions[finalI]));
+                writeInfoFile(outputFile, descriptions[i]);
 
-            SwingUtilities.invokeLater(() -> updateProgress(""));
-            writeInfoFile(outputFile, "");
+                SwingUtilities.invokeLater(() -> updateProgress(""));
+                writeInfoFile(outputFile, "");
+            }
         }
 
         writeInfoFile(outputFile, "final");
@@ -216,10 +218,10 @@ public class FileConversionApp extends JFrame {
 
     public static void createHtmlFile( String title, String description, String picName, String filePath) {
         String fileName = title.replaceAll("\\\\", "").replaceAll("/", "") + ".html";
-        String prefix = "Описание чехла ";
+        String prefix = "Описание смартфона ";
 
         try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(filePath+"/"+title.replaceAll("\\\\", "").replaceAll("/", "") + ".html"), "UTF-8"))) {
-            writer.write("<h2 style=\"text-align:center;\">" + prefix  + title.replace("Чехол ", "") + "</h2>\n");
+            writer.write("<h2 style=\"text-align:center;\">" + prefix  + title.replace("Смартфон ", "") + "</h2>\n");
 
             String[] descriptionParts = TextSplitter.splitText(description);
             int picNo = 1;
